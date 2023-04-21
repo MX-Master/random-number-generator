@@ -45,3 +45,18 @@ button:hover {
 button:active {
     color: grey;
 }
+
+
+
+
+.numeric_params {
+    display: inline-block;
+    text-align: right;
+}
+
+.check_params {
+    display: inline-block;
+    text-align: left;
+    vertical-align: top;
+    padding-left: 20px;
+}
