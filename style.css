@@ -1,0 +1,47 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font: normal 10pt Arial;
+    color: black;
+    background: white;
+    text-align: center;
+}
+
+input[type="number"], input[type="text"] {
+    display: inline-block;
+    width: 100px;
+    padding: 6px 12px;
+    margin: 3px;
+    border: 1px solid rgba(128,128,128,0.5);
+    border-radius: 5px;
+    font-size: 120%;
+    font-weight: bold;
+    color: black;
+    background: white;
+    text-align: center;
+}
+input[type="text"] {
+    width: 300px;
+    font-weight: normal;
+}
+
+button {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 3px;
+    cursor: pointer;
+    border: 1px solid rgba(128,128,128,0.5);
+    border-radius: 5px;
+    font-size: 120%;
+    font-weight: bold;
+    color: black;
+    background: rgba(128,128,128,0.2);
+}
+button:hover {
+    border: 1px solid #333;
+}
+button:active {
+    color: grey;
+}
