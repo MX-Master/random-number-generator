@@ -73,16 +73,16 @@ function generate() {
             for (var tries = 1000; tries--; ) {
                 rnd = Math.random()*(p.max - p.min) + p.min;
                 rnd = rnd.toFixed(fract_digits);
-                console.log(rnd);
+//                console.log(rnd);
                 var permutations = permute( rnd.split('') );
                 var unique_permutations = [];
                 for (var i = permutations.length, value = 0; i--; ) {
                     value = parseFloat(permutations[i].join(''));
-                    //value = parseFloat(value.toFixed(fract_digits));
+//                    value = parseFloat(value.toFixed(fract_digits));
                     if (value >= p.min && value <= p.max ) unique_permutations.push(value);
                 }
                 unique_permutations = [...new Set(unique_permutations)];
-                console.log(unique_permutations);
+//                console.log(unique_permutations);
                 var permutation_found = 0;
                 for (var i = unique_permutations.length; i--; ) {
                     if (history_list.includes(unique_permutations[i]) ||
