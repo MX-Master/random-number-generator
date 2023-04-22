@@ -1,6 +1,6 @@
 function page_init() {
     // save/restore form values
-    var storage_list = ['min','max','count','unique','unique_digits','sort'];
+    var storage_list = ['min','max','count','unique','impermutable','sort'];
     for (var i = storage_list.length; i--;) {
         var ls = localStorage.getItem(storage_list[i]);
         var e = document.querySelector('#'+storage_list[i]);
@@ -14,8 +14,7 @@ function page_init() {
         e.addEventListener("change", f_ls_update);
         if (typeof(ls) != 'undefined') {
             if (e.type == 'number') {
-                if (ls) ls = parseFloat(''+ls);
-                if (typeof(ls) == 'number') e.value = ''+ls;
+                e.value = ls;
             } else if (e.type == 'checkbox') {
                 e.checked = parseInt(ls) ? true : false;
             }
@@ -43,17 +42,22 @@ function clear_history() {
 function show_history() {
     // show results
     var e = document.querySelector('#results');
-    if (e) e.innerText = 'history: ' + history_list.join(', ');
+    if (e) e.innerText = 'history('+history_list.length+'): ' + history_list.join(', ');
 }
 
 function generate() {
     // get parameters
-    var p = {'min':0, 'max':0, 'count':0, 'unique':0, 'unique_digits':0, 'sort':0};
+    var p = {'min':0, 'max':0, 'count':0, 'unique':0, 'impermutable':0, 'sort':0};
+    var fract_digits = 0;
     for (var name in p) {
         var e = document.querySelector('#'+name);
         if (!e) continue;
         if (e.type == 'number') {
             p[name] = e.value;
+            if (name == 'min' || name == 'max') {
+            if ( p[name].indexOf('.') >= 0 )
+                fract_digits = Math.max(fract_digits, p[name].length - p[name].indexOf('.') - 1);
+            }
             if (p[name]) p[name] = parseFloat(p[name]);
             if (typeof(p[name]) != 'number') p[name] = 0;
         } else if (e.type == 'checkbox') {
@@ -63,38 +67,48 @@ function generate() {
     p.count = Math.abs(Math.round(p.count));
     // get results
     var rnd_list = [];
-    var unique_list = [];
-    var fract_digits = 0;
-    if ( (''+p.min).indexOf('.') >= 0 )
-        fract_digits = (''+p.min).length - (''+p.min).indexOf('.') - 1;
-    if ( (''+p.max).indexOf('.') >= 0 )
-        fract_digits = Math.max(fract_digits, (''+p.max).length - (''+p.max).indexOf('.') - 1);
-    for (var i = p.count, rnd = 0; i--; ) {
-        if (p.unique) {
-            if (0/*p.unique_digits*/) {
-                // TODO
-                for (var tries = 1000; tries--; ) {
-                    rnd = Math.random() * (p.max - p.min) + p.min;
-                    rnd = rnd.toFixed(fract_digits);
-                    if (!unique_list.includes(rnd)) {
-                        history_list.push( parseFloat(rnd) );
-                        unique_list.push(''+rnd);
+    if (typeof(history_list) != 'object') history_list = [];
+    for (var cnt = p.count, rnd = 0; cnt--; ) {
+        if (p.impermutable) {
+            for (var tries = 1000; tries--; ) {
+                rnd = Math.random()*(p.max - p.min) + p.min;
+                rnd = rnd.toFixed(fract_digits);
+                console.log(rnd);
+                var permutations = permute( rnd.split('') );
+                var unique_permutations = [];
+                for (var i = permutations.length, value = 0; i--; ) {
+                    value = parseFloat(permutations[i].join(''));
+                    //value = parseFloat(value.toFixed(fract_digits));
+                    if (value >= p.min && value <= p.max ) unique_permutations.push(value);
+                }
+                unique_permutations = [...new Set(unique_permutations)];
+                console.log(unique_permutations);
+                var permutation_found = 0;
+                for (var i = unique_permutations.length; i--; ) {
+                    if (history_list.includes(unique_permutations[i]) ||
+                        rnd_list.includes(unique_permutations[i])) {
+                        permutation_found = 1;
                         break;
                     }
                 }
-            } else {
-                for (var tries = 1000; tries--; ) {
-                    rnd = Math.random() * (p.max - p.min) + p.min;
-                    rnd = parseFloat( rnd.toFixed(fract_digits) );
-                    if (!history_list.includes(rnd)) {
-                        history_list.push(rnd);
-                        rnd_list.push(rnd);
-                        break;
-                    }
+                if (!permutation_found) {
+                    rnd = parseFloat(rnd);
+                    rnd_list.push(rnd);
+                    break;
+                }
+            }
+        } else if (p.unique) {
+            for (var tries = 1000; tries--; ) {
+                rnd = Math.random()*(p.max - p.min) + p.min;
+                rnd = parseFloat( rnd.toFixed(fract_digits) );
+                if (!history_list.includes(rnd) && !rnd_list.includes(rnd)) {
+                    history_list.push(rnd);
+                    rnd_list.push(rnd);
+                    break;
                 }
             }
         } else {
-            rnd = Math.random() * (p.max - p.min) + p.min;
+            rnd = Math.random()*(p.max - p.min) + p.min;
             rnd = parseFloat( rnd.toFixed(fract_digits) );
             history_list.push(rnd);
             rnd_list.push(rnd);
@@ -105,9 +119,35 @@ function generate() {
             var a1 = typeof(a), b1 = typeof(b);
             return a1<b1 ? -1 : a1>b1 ? 1 : a<b ? -1 : a>b ? 1 : 0;
         });
+    history_list = history_list.concat(rnd_list);
     // show results
     var e = document.querySelector('#results');
     if (e) e.innerText = rnd_list.join(', ');
 }
+
+function permute(permutation) {
+    var length = permutation.length,
+        result = [permutation.slice()],
+        c = new Array(length).fill(0),
+        i = 1, k, p;
+    while (i < length) {
+        if (c[i] < i) {
+            k = i % 2 && c[i];
+            p = permutation[i];
+            permutation[i] = permutation[k];
+            permutation[k] = p;
+            ++c[i];
+            i = 1;
+            result.push(permutation.slice());
+        } else {
+            c[i] = 0;
+            ++i;
+        }
+    }
+    return result;
+}
+
+
+
 
 page_init();
