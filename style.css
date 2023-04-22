@@ -60,3 +60,8 @@ button:active {
     vertical-align: top;
     padding-left: 10px;
 }
+
+#results {
+    display: inline-block;
+    width: 95%;
+}
