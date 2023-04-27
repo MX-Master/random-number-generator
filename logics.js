@@ -12,7 +12,7 @@ function page_init() {
         };
         e.addEventListener("keyup", f_ls_update);
         e.addEventListener("change", f_ls_update);
-        if (typeof(ls) != 'undefined') {
+        if (typeof(ls) != 'undefined' && ls) {
             if (e.type == 'number') {
                 e.value = ls;
             } else if (e.type == 'checkbox') {
