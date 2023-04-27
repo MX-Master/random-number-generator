@@ -102,7 +102,6 @@ function generate() {
                 rnd = Math.random()*(p.max - p.min) + p.min;
                 rnd = parseFloat( rnd.toFixed(fract_digits) );
                 if (!history_list.includes(rnd) && !rnd_list.includes(rnd)) {
-                    history_list.push(rnd);
                     rnd_list.push(rnd);
                     break;
                 }
@@ -110,7 +109,6 @@ function generate() {
         } else {
             rnd = Math.random()*(p.max - p.min) + p.min;
             rnd = parseFloat( rnd.toFixed(fract_digits) );
-            history_list.push(rnd);
             rnd_list.push(rnd);
         }
     }
