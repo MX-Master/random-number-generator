@@ -17,16 +17,20 @@
                 COUNT: <input type="number" id="count" value="1">
             </div>
             <div class="check_params">
-                <label for="unique_once">
+                <label for="unique_once"
+                       title="Unique count of numbers per one GENERATE key press">
                     <input type="checkbox" id="unique_once"> UNIQUE (ONCE)
                 </label><br>
-                <label for="unique_history">
+                <label for="unique_history"
+                       title="Unique count of numbers per history (exludes current one)">
                     <input type="checkbox" id="unique_history"> UNIQUE (HISTORY)
                 </label><br>
-                <label for="impermutable">
+                <label for="impermutable"
+                       title="Exludes other permutable numbers (permutation examples: 12/21, 123/132/213/231/312/321, ...)">
                     <input type="checkbox" id="impermutable"> NO PERMUTATIONS
                 </label><br>
-                <label for="sort">
+                <label for="sort"
+                       title="Sort the results (ASC)">
                     <input type="checkbox" id="sort"> SORT
                 </label>
             </div>
