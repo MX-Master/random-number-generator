@@ -1,6 +1,6 @@
 function page_init() {
     // save/restore form values
-    var storage_list = ['min','max','count','unique','impermutable','sort'];
+    var storage_list = ['min','max','count','unique_once','unique_history','impermutable','sort'];
     for (var i = storage_list.length; i--;) {
         var ls = localStorage.getItem(storage_list[i]);
         var e = document.querySelector('#'+storage_list[i]);
@@ -47,7 +47,7 @@ function show_history() {
 
 function generate() {
     // get parameters
-    var p = {'min':0, 'max':0, 'count':0, 'unique':0, 'impermutable':0, 'sort':0};
+    var p = {'min':0, 'max':0, 'count':0, 'unique_once':0, 'unique_history':0, 'impermutable':0, 'sort':0};
     var fract_digits = 0;
     for (var name in p) {
         var e = document.querySelector('#'+name);
@@ -97,14 +97,14 @@ function generate() {
                     break;
                 }
             }
-        } else if (p.unique) {
+        } else if (p.unique_once || p.unique_history) {
             for (var tries = 1000; tries--; ) {
                 rnd = Math.random()*(p.max - p.min) + p.min;
                 rnd = parseFloat( rnd.toFixed(fract_digits) );
-                if (!history_list.includes(rnd) && !rnd_list.includes(rnd)) {
-                    rnd_list.push(rnd);
-                    break;
-                }
+                if (p.unique_once && rnd_list.includes(rnd)) continue;
+                if (p.unique_history && history_list.includes(rnd)) continue;
+                rnd_list.push(rnd);
+                break;
             }
         } else {
             rnd = Math.random()*(p.max - p.min) + p.min;
