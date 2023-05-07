@@ -45,33 +45,29 @@ function show_history() {
     if (e) e.innerText = 'history('+history_list.length+'): ' + history_list.join(', ');
 }
 
-function generate() {
-    // get parameters
-    var p = {'min':0, 'max':0, 'count':0, 'unique_once':0, 'unique_history':0, 'impermutable':0, 'sort':0};
+function get_rand_list(
+    min=0, max=0, count=0,
+    unique_once=0, unique_history=0, impermutable=0,
+    sort=0
+) {
+    // setup vars
     var fract_digits = 0;
-    for (var name in p) {
-        var e = document.querySelector('#'+name);
-        if (!e) continue;
-        if (e.type == 'number') {
-            p[name] = e.value;
-            if (name == 'min' || name == 'max') {
-            if ( p[name].indexOf('.') >= 0 )
-                fract_digits = Math.max(fract_digits, p[name].length - p[name].indexOf('.') - 1);
-            }
-            if (p[name]) p[name] = parseFloat(p[name]);
-            if (typeof(p[name]) != 'number') p[name] = 0;
-        } else if (e.type == 'checkbox') {
-            p[name] = e.checked;
-        }
-    }
-    p.count = Math.abs(Math.round(p.count));
-    // get results
     var rnd_list = [];
     if (typeof(history_list) != 'object') history_list = [];
-    for (var cnt = p.count, rnd = 0; cnt--; ) {
-        if (p.impermutable) {
+    // check/fix arguments
+    if(typeof(min) != "number") min = parseFloat(''+min);
+    if(typeof(max) != "number") max = parseFloat(''+max);
+    if(typeof(count) != "number") count = parseFloat(''+count);
+    count = Math.abs(Math.round(count));
+    if ( (''+min).indexOf('.') >= 0 )
+        fract_digits = Math.max(fract_digits, (''+min).length - (''+min).indexOf('.') - 1);
+    if ( (''+max).indexOf('.') >= 0 )
+        fract_digits = Math.max(fract_digits, (''+max).length - (''+max).indexOf('.') - 1);
+    // generate array of random numbers
+    for (var cnt = count, rnd = 0; cnt--; ) {
+        if (impermutable) {
             for (var tries = 1000; tries--; ) {
-                rnd = Math.random()*(p.max - p.min) + p.min;
+                rnd = Math.random()*(max - min) + min;
                 rnd = rnd.toFixed(fract_digits);
 //                console.log(rnd);
                 var permutations = permute( rnd.split('') );
@@ -79,7 +75,7 @@ function generate() {
                 for (var i = permutations.length, value = 0; i--; ) {
                     value = parseFloat(permutations[i].join(''));
 //                    value = parseFloat(value.toFixed(fract_digits));
-                    if (value >= p.min && value <= p.max ) unique_permutations.push(value);
+                    if (value >= min && value <= max ) unique_permutations.push(value);
                 }
                 unique_permutations = [...new Set(unique_permutations)];
 //                console.log(unique_permutations);
@@ -97,27 +93,51 @@ function generate() {
                     break;
                 }
             }
-        } else if (p.unique_once || p.unique_history) {
+        } else if (unique_once || unique_history) {
             for (var tries = 1000; tries--; ) {
-                rnd = Math.random()*(p.max - p.min) + p.min;
+                rnd = Math.random()*(max - min) + min;
                 rnd = parseFloat( rnd.toFixed(fract_digits) );
-                if (p.unique_once && rnd_list.includes(rnd)) continue;
-                if (p.unique_history && history_list.includes(rnd)) continue;
+                if (unique_once && rnd_list.includes(rnd)) continue;
+                if (unique_history && history_list.includes(rnd)) continue;
                 rnd_list.push(rnd);
                 break;
             }
         } else {
-            rnd = Math.random()*(p.max - p.min) + p.min;
+            rnd = Math.random()*(max - min) + min;
             rnd = parseFloat( rnd.toFixed(fract_digits) );
             rnd_list.push(rnd);
         }
     }
-    if (p.sort)
+    // sort array
+    if (sort)
         rnd_list.sort(function(a,b){
             var a1 = typeof(a), b1 = typeof(b);
             return a1<b1 ? -1 : a1>b1 ? 1 : a<b ? -1 : a>b ? 1 : 0;
         });
+    // add array to history array
     history_list = history_list.concat(rnd_list);
+    // return an array
+    return rnd_list;
+}
+
+function generate() {
+    // get parameters
+    var p = {'min':0, 'max':0, 'count':0, 'unique_once':0, 'unique_history':0, 'impermutable':0, 'sort':0};
+    for (var name in p) {
+        var e = document.querySelector('#'+name);
+        if (!e) continue;
+        if (e.type == 'number') {
+            p[name] = e.value;
+            if (p[name]) p[name] = parseFloat(p[name]);
+            if (typeof(p[name]) != 'number') p[name] = 0;
+        } else if (e.type == 'checkbox') {
+            p[name] = e.checked;
+        }
+    }
+    // get random number list
+    var rnd_list = get_rand_list(p.min, p.max, p.count,
+                                 p.unique_once, p.unique_history, p.impermutable,
+                                 p.sort);
     // show results
     var e = document.querySelector('#results');
     if (e) e.innerText = rnd_list.join(', ');
