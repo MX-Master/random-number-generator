@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>random number generator - test</title>
+        <link rel="icon" href="favicon.ico">
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <h2>random number generator - test</h2>
+        <p>
+            <div class="numeric_params">
+                MIN: <input type="number" id="min" value="0"><br>
+                MAX: <input type="number" id="max" value="100"><br>
+                COUNT: <input type="number" id="count" value="1"><br>
+                FIND (TEST): <input type="text" id="find" value="7"><br>
+                TRIES (TEST): <input type="number" id="tries" value="10000">
+            </div>
+            <div class="check_params">
+                <label for="unique_once"
+                       title="Unique count of numbers per one GENERATE key press">
+                    <input type="checkbox" id="unique_once"> UNIQUE (ONCE)
+                </label><br>
+                <label for="unique_history"
+                       title="Unique count of numbers per history (exludes current one)">
+                    <input type="checkbox" id="unique_history"> UNIQUE (HISTORY)
+                </label><br>
+                <label for="impermutable"
+                       title="Exludes other permutable numbers (permutation examples: 12/21, 123/132/213/231/312/321, ...)">
+                    <input type="checkbox" id="impermutable"> NO PERMUTATIONS
+                </label><br>
+                <label for="sort"
+                       title="Sort the results (ASC)">
+                    <input type="checkbox" id="sort"> SORT
+                </label>
+            </div>
+        </p>
+        <p>
+            <button id="test">TEST</button>
+            <button id="generate">GENERATE</button>
+            <button id="history">HISTORY</button>
+            <button id="clear">CLEAR</button>
+        </p>
+        <h1 id="results"></h1>
+    </body>
+
+    <script type="text/javascript" src="logics.js"></script>
+</html>

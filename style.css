@@ -22,10 +22,6 @@ input[type="number"], input[type="text"] {
     background: white;
     text-align: center;
 }
-input[type="text"] {
-    width: 300px;
-    font-weight: normal;
-}
 
 button {
     display: inline-block;

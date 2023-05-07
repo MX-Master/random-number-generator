@@ -1,19 +1,22 @@
 function page_init() {
     // save/restore form values
-    var storage_list = ['min','max','count','unique_once','unique_history','impermutable','sort'];
+    var storage_list = ['min','max','count','find','tries','unique_once','unique_history','impermutable','sort'];
     for (var i = storage_list.length; i--;) {
         var ls = localStorage.getItem(storage_list[i]);
         var e = document.querySelector('#'+storage_list[i]);
         if (!e) continue;
         var f_ls_update = function(event) {
             var e = event.target;
-            if (e.type == 'number') localStorage.setItem(e.id, e.value);
+            if (e.type == 'text') localStorage.setItem(e.id, e.value);
+            else if (e.type == 'number') localStorage.setItem(e.id, e.value);
             else if (e.type == 'checkbox') localStorage.setItem(e.id, e.checked ? 1 : 0);
         };
         e.addEventListener("keyup", f_ls_update);
         e.addEventListener("change", f_ls_update);
         if (typeof(ls) != 'undefined' && ls) {
-            if (e.type == 'number') {
+            if (e.type == 'text') {
+                e.value = ls;
+            }else if (e.type == 'number') {
                 e.value = ls;
             } else if (e.type == 'checkbox') {
                 e.checked = parseInt(ls) ? true : false;
@@ -23,6 +26,8 @@ function page_init() {
     // add some actions for the buttons
     var e = document.querySelector('#generate');
     if (e && typeof(generate) == 'function') e.addEventListener("click", generate);
+    var e = document.querySelector('#test');
+    if (e && typeof(test) == 'function') e.addEventListener("click", test);
     e = document.querySelector('#clear');
     if (e && typeof(clear_history) == 'function') e.addEventListener("click", clear_history);
     e = document.querySelector('#history');
@@ -163,6 +168,70 @@ function permute(permutation) {
         }
     }
     return result;
+}
+
+function test() {
+    // get parameters
+    var p = {'min':0, 'max':0, 'count':0, 'find':"", 'tries':0, 'unique_once':0, 'unique_history':0, 'impermutable':0, 'sort':0};
+    for (var name in p) {
+        var e = document.querySelector('#'+name);
+        if (!e) continue;
+        if (e.type == 'text') {
+            p[name] = e.value;
+        } else if (e.type == 'number') {
+            p[name] = e.value;
+            if (p[name]) p[name] = parseFloat(p[name]);
+            if (typeof(p[name]) != 'number') p[name] = 0;
+        } else if (e.type == 'checkbox') {
+            p[name] = e.checked;
+        }
+    }
+    // get target numbers array
+    var target = 0;
+    if (p.find.indexOf(', ') >= 0) target = p.find.split(', ');
+    else if (p.find.indexOf(',') >= 0) target = p.find.split(',');
+    else if (p.find.indexOf(' ') >= 0) target = p.find.split(' ');
+    else {
+        target = [];
+        target[0] = parseFloat(p.find);
+        if (typeof(target[0]) != "number") target = 0;
+    }
+    if(typeof(target) != "object") {
+        target = [];
+        for (var i = p.count; i--; ) target[i] = p.min;
+    } else {
+        if (target.length > p.count) {
+            target = target.slice(0, p.count);
+        } else if(target.length < p.count) {
+            for (var i = target.length; i < p.count; i++) target[i] = p.min;
+        }
+        for (var i = p.count; i--; ) {
+            if(typeof(target[i]) == "number") continue;
+            target[i] = parseFloat(target[i]);
+            if(typeof(target[i]) != "number") target[i] = p.min;
+        }
+    }
+    // search for target numbers
+    history_list = [];
+    var tries = 0, rnd_list = [], found = 0;
+    for (; tries < p.tries; tries++) {
+        found = 0;
+        // get random number list
+        rnd_list = get_rand_list(p.min, p.max, p.count,
+                                 p.unique_once, p.unique_history, p.impermutable,
+                                 p.sort);
+        // compare random list with target list
+        if (rnd_list.length != target.length) break;
+        for (var i = p.count; i--; ) {
+            if (target.includes(rnd_list[i])) found++;
+        }
+        if(found == p.count) break;
+    }
+    // show results
+    var e = document.querySelector('#results');
+    if (e) e.innerHTML = "find numbers: <u>" + target.join(', ') + "</u><br>\r\n"
+                       + "found: <u>" + (found == p.count ? "Yes" : "No") + "</u><br>\r\n"
+                       + "tries: <u>" + tries + "</u> from " + p.tries;
 }
 
 
